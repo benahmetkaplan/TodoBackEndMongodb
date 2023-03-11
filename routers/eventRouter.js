@@ -1,15 +1,14 @@
 import express from "express";
-import postgresClient from '../config/db.js';
+import pgClient from '../config/db.js';
 
 const router = express.Router();
-
 const table = "events";
 
-// GET: All data
+// GET: List all rows
 router.get('/', async (req, res) => {
     try {
         const query = `SELECT * FROM ${table}`;
-        const { rows } = await postgresClient.query(query);
+        const { rows } = await pgClient.query(query);
         return res.status(200).json({
             rows: rows
         });
@@ -21,12 +20,12 @@ router.get('/', async (req, res) => {
     }
 });
 
-// GET: Data by id
+// GET: Row by id
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const query = `SELECT * FROM ${table} WHERE id = ${id}`;
-        const { rows } = await postgresClient.query(query);
+        const { rows } = await pgClient.query(query);
         if (rows.length > 0) {
             return res.status(200).json({
                 rows: rows[0]
@@ -49,7 +48,7 @@ router.post('/', async (req, res) => {
     try {
         const query = `INSERT INTO ${table} (title, content) VALUES($1, $2) RETURNING *`;
         const values = [req.body.title, req.body.content];
-        const { rows } = await postgresClient.query(query, values);
+        const { rows } = await pgClient.query(query, values);
         return res.status(201).json({
             rows: rows[0]
         });
@@ -61,7 +60,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT: Data by id
+// PUT: Row by id
 router.put('/:id', async (req, res) => {
     try {
         const { id } = req.params;
@@ -69,7 +68,7 @@ router.put('/:id', async (req, res) => {
         const values = Object.keys(req.body).map(function (key) {
             return req.body[key];
         });
-        const result = await postgresClient.query(query, values);
+        const result = await pgClient.query(query, values);
         if (!result.err) {
             return res.status(200).json({
                 message: "Successfully updated!",
@@ -86,12 +85,12 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// DELETE: Data by id
+// DELETE: Row by id
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
         const query = `DELETE FROM ${table} WHERE id = ${id}`;
-        const result = await postgresClient.query(query);
+        const result = await pgClient.query(query);
         return res.status(200).json({
             message: 'Row deleted!'
         });

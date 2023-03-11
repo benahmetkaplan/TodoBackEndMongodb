@@ -22,7 +22,7 @@
                     "200": {
                         "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/EventResponse"
+                            "$ref": "#/definitions/EventResponseModel"
                         }
                     }
                 }
@@ -38,7 +38,7 @@
                         "name": "body",
                         "required": false,
                         "schema": {
-                            "$ref": "#/definitions/EventItem"
+                            "$ref": "#/definitions/EventItemModel"
                         }
                     }
                 ],
@@ -46,7 +46,7 @@
                     "200": {
                         "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/EventResponse"
+                            "$ref": "#/definitions/EventResponseModel"
                         }
                     }
                 }
@@ -70,7 +70,7 @@
                     "200": {
                         "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/EventResponse"
+                            "$ref": "#/definitions/EventResponseModel"
                         }
                     }
                 }
@@ -92,7 +92,7 @@
                         "name": "body",
                         "required": false,
                         "schema": {
-                            "$ref": "#/definitions/EventItem"
+                            "$ref": "#/definitions/EventItemModel"
                         }
                     }
                 ],
@@ -100,7 +100,7 @@
                     "200": {
                         "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/EventResponse"
+                            "$ref": "#/definitions/EventResponseModel"
                         }
                     }
                 }
@@ -122,7 +122,7 @@
                     "200": {
                         "description": "Successfully",
                         "schema": {
-                            "$ref": "#/definitions/EventResponse"
+                            "$ref": "#/definitions/EventResponseModel"
                         }
                     }
                 }
@@ -130,7 +130,7 @@
         }
     },
     "definitions": {
-        "EventResponse": {
+        "EventResponseModel": {
             "type": "object",
             "properties": {
                 "message": {
@@ -139,12 +139,12 @@
                 "rows": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/EventItem"
+                        "$ref": "#/definitions/EventItemModel"
                     }
                 }
             }
         },
-        "EventItem": {
+        "EventItemModel": {
             "type": "object",
             "properties": {
                 "id": {
