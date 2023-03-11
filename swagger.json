@@ -1,0 +1,162 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "TodoBackEndAPI",
+        "description": "A minimal and easy to follow example of what you need to create a CRUD style API in NodeJs"
+    },
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/events": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get all rows",
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/EventResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Create row",
+                "parameters": [
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/EventItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/EventResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/events/{id}": {
+            "get": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Get row by id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "type": "integer",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/EventResponse"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Update row by id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "type": "integer",
+                        "in": "path"
+                    },
+                    {
+                        "in": "body",
+                        "name": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/EventItem"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/EventResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Delete row by id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "type": "integer",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/EventResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "EventResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "rows": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/EventItem"
+                    }
+                }
+            }
+        },
+        "EventItem": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
