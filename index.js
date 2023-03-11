@@ -10,7 +10,7 @@ app.use(express.json());
 
 app.use('/events', eventRouter);
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 
 app.get('/', (req, res) => {
     res.redirect(301, '/api-docs');
@@ -22,6 +22,9 @@ app.listen(PORT, () => {
     postgresClient.connect(err => {
         if (err) {
             console.log(`Error: ${err.stack}`);
+        } else {
+            console.log(`Listening: http://${process.env.HOSTNAME}:${PORT}`);
+            console.log(`Swagger UI: http://${process.env.HOSTNAME}:${PORT}/api-docs`);
         }
     });
 });
