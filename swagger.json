@@ -165,6 +165,12 @@
                     "items": {
                         "$ref": "#/definitions/EventItemModel"
                     }
+                },
+                "row": {
+                    "$ref": "#/definitions/EventItemModel"
+                },
+                "insertId": {
+                    "type": "integer"
                 }
             }
         },

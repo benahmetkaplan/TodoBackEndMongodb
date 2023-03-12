@@ -5,7 +5,7 @@ const router = express.Router();
 const table = "events";
 
 // GET: List all rows
-router.get('/', async (req, res) => {
+router.get('/', (req, res) => {
     const query = `SELECT * FROM ${table}`;
     connection.query(query, (err, result) => {
         if (!err) {
@@ -22,14 +22,20 @@ router.get('/', async (req, res) => {
 });
 
 // GET: Row by id
-router.get('/:id', async (req, res) => {
+router.get('/:id', (req, res) => {
     const { id } = req.params;
     const query = `SELECT * FROM ${table} WHERE id = ${id}`;
     connection.query(query, (err, result) => {
         if (!err) {
-            return res.status(200).json({
-                rows: result
-            });
+            if (result.length > 0) {
+                return res.status(200).json({
+                    row: result[0]
+                });
+            } else {
+                return res.status(400).json({
+                    message: "Row not found!"
+                });
+            }
         }else{
             console.log("Error:", err);
             return res.status(400).json({
@@ -40,7 +46,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST: Create row
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
     const query = `INSERT INTO ${table} (title, content, statu) VALUES(?,?,?)`;
     const values = [req.body.title, req.body.content, req.body.statu];
     connection.query(query, values, (err, result) => {
@@ -65,7 +71,7 @@ router.post('/', async (req, res) => {
 });
 
 // PUT: Row by id
-router.put('/:id', async (req, res) => {
+router.put('/:id', (req, res) => {
     const { id } = req.params;
     const query = generateUpdateQuery(id, req.body);
     connection.query(query, (err, result) => {
@@ -89,7 +95,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // DELETE: Row by id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', (req, res) => {
     const { id } = req.params;
     const query = "DELETE FROM `"+table+"` WHERE id = "+ id;
     connection.query(query, (err, result) => {
@@ -113,7 +119,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 // PUT: Change statu by id
-router.put('/changeStatu/:id', async (req, res) => {
+router.put('/changeStatu/:id', (req, res) => {
     const { id } = req.params;
     const query = `SELECT * FROM ${table} WHERE id = ${id}`;
     connection.query(query, (err, result) => {
@@ -142,12 +148,12 @@ router.put('/changeStatu/:id', async (req, res) => {
                 });
             }else{
                 return res.status(400).json({
-                    message: "Bu id'ye ait kayıt bulunamadı"
+                    message: "Row not found!"
                 });
             }
         }else{
             return res.status(400).json({
-                message: "Bu id'ye ait kayıt bulunamadı"
+                message: "Row not found!"
             });
         }
     });
