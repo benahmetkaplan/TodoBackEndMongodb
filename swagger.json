@@ -171,6 +171,9 @@
                 },
                 "insertId": {
                     "type": "integer"
+                },
+                "statusCode": {
+                    "type": "integer"
                 }
             }
         },

@@ -10,12 +10,20 @@ router.get('/', (req, res) => {
     connection.query(query, (err, result) => {
         if (!err) {
             return res.status(200).json({
-                rows: result
+                statusCode: 200,
+                message: null,
+                rows: result,
+                row: null,
+                insertId: null
             });
-        }else{
+        } else {
             console.log("Error:", err);
             return res.status(400).json({
-                message: err
+                statusCode: 400,
+                message: err,
+                rows: null,
+                row: null,
+                insertId: null
             });
         }
     });
@@ -29,17 +37,29 @@ router.get('/:id', (req, res) => {
         if (!err) {
             if (result.length > 0) {
                 return res.status(200).json({
-                    row: result[0]
+                    statusCode: 200,
+                    message: null,
+                    rows: null,
+                    row: result[0],
+                    insertId: null
                 });
             } else {
                 return res.status(400).json({
-                    message: "Row not found!"
+                    statusCode: 400,
+                    message: "Row not found!",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
             }
-        }else{
+        } else {
             console.log("Error:", err);
             return res.status(400).json({
-                message: err
+                statusCode: 400,
+                message: err,
+                rows: null,
+                row: null,
+                insertId: null
             });
         }
     });
@@ -53,18 +73,29 @@ router.post('/', (req, res) => {
         if (!err) {
             if (result.insertId > 0) {
                 return res.status(200).json({
+                    statusCode: 200,
                     message: "Successfully inserted",
+                    rows: null,
+                    row: null,
                     insertId: result.insertId
                 });
-            }else{
+            } else {
                 return res.status(400).json({
-                    message: "İnsert failed"
+                    statusCode: 400,
+                    message: "İnsert failed",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
-            }            
-        }else{
+            }
+        } else {
             console.log("Error:", err);
             return res.status(400).json({
-                message: err
+                statusCode: 400,
+                message: err,
+                rows: null,
+                row: null,
+                insertId: null
             });
         }
     });
@@ -78,17 +109,29 @@ router.put('/:id', (req, res) => {
         if (!err) {
             if (result.affectedRows === 1) {
                 return res.status(200).json({
-                    message: "Successfully updated"
+                    statusCode: 200,
+                    message: "Successfully updated",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
-            }else{
+            } else {
                 return res.status(400).json({
-                    message: "Update failed"
+                    statusCode: 400,
+                    message: "Update failed",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
             }
-        }else{
+        } else {
             console.log("Error:", err);
             return res.status(400).json({
-                message: err
+                statusCode: 400,
+                message: err,
+                rows: null,
+                row: null,
+                insertId: null
             });
         }
     });
@@ -102,17 +145,29 @@ router.delete('/:id', (req, res) => {
         if (!err) {
             if (result.affectedRows === 1) {
                 return res.status(200).json({
-                    message: "Successfully deleted"
+                    statusCode: 200,
+                    message: "Successfully deleted",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
-            }else{
+            } else {
                 return res.status(400).json({
-                    message: "Delete failed"
+                    statusCode: 400,
+                    message: "Delete failed",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
             }
-        }else{
+        } else {
             console.log("Error:", err);
             return res.status(400).json({
-                message: err
+                statusCode: 400,
+                message: err,
+                rows: null,
+                row: null,
+                insertId: null
             });
         }
     });
@@ -132,28 +187,48 @@ router.put('/changeStatu/:id', (req, res) => {
                     if (!err) {
                         if (result.affectedRows === 1) {
                             return res.status(200).json({
-                                message: "Statu changed:" + (statu === 1 ? "[Active]" : "[Passive]")
+                                statusCode: 200,
+                                message: "Statu changed:" + (statu === 1 ? "[Active]" : "[Passive]"),
+                                rows: null,
+                                row: null,
+                                insertId: null
                             });
-                        }else{
+                        } else {
                             return res.status(400).json({
-                                message: "Changed failed"
+                                statusCode: 400,
+                                message: "Changed failed",
+                                rows: null,
+                                row: null,
+                                insertId: null
                             });
                         }
-                    }else{
+                    } else {
                         console.log("Error:", err);
                         return res.status(400).json({
-                            message: err
+                            statusCode: 400,
+                            message: err,
+                            rows: null,
+                            row: null,
+                            insertId: null
                         });
                     }
                 });
-            }else{
+            } else {
                 return res.status(400).json({
-                    message: "Row not found!"
+                    statusCode: 400,
+                    message: "Row not found!",
+                    rows: null,
+                    row: null,
+                    insertId: null
                 });
             }
-        }else{
+        } else {
             return res.status(400).json({
-                message: "Row not found!"
+                statusCode: 400,
+                message: "Row not found!",
+                rows: null,
+                row: null,
+                insertId: null
             });
         }
     });
