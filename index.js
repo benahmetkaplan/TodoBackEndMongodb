@@ -1,5 +1,5 @@
 import express from "express";
-import pgClient from './config/db.js';
+import connection from './config/db.js';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 
@@ -27,10 +27,10 @@ app.get('/', (req, res) => {
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJson));
 
 app.listen(port, () => {
-    pgClient.connect(err => {
+    connection.connect(err => {
         if (err) {
-            console.log(`Error: ${JSON.stringify(err)}`);
-        } else {
+            console.log("Database Error:", err);
+        }else{
             console.log(`Listening: http://${process.env.HOSTNAME}:${port}`);
             console.log(`Swagger UI: http://${process.env.HOSTNAME}:${port}/api-docs`);
         }

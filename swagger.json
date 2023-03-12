@@ -3,7 +3,7 @@
     "info": {
         "version": "1.0.0",
         "title": "TodoBackEndAPI",
-        "description": "A minimal and easy to follow example of what you need to create a CRUD style API in NodeJs"
+        "description": "TODO uygulaması CRUD işlerimleri örneği."
     },
     "consumes": [
         "application/json"
@@ -127,6 +127,30 @@
                     }
                 }
             }
+        },
+        "/events/changeStatu/{id}": {
+            "put": {
+                "tags": [
+                    "Events"
+                ],
+                "summary": "Dynamic change statu by id",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "required": true,
+                        "type": "integer",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/EventResponseModel"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -155,6 +179,9 @@
                 },
                 "content": {
                     "type": "string"
+                },
+                "statu": {
+                    "type": "integer"
                 }
             }
         }

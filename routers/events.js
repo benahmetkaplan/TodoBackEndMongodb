@@ -1,118 +1,167 @@
 import express from "express";
-import pgClient from '../config/db.js';
+import connection from '../config/db.js';
 
 const router = express.Router();
 const table = "events";
 
 // GET: List all rows
 router.get('/', async (req, res) => {
-    try {
-        const query = `SELECT * FROM ${table}`;
-        const { rows } = await pgClient.query(query);
-        return res.status(200).json({
-            rows: rows
-        });
-    } catch (error) {
-        console.log("Error: ", error);
-        return res.status(400).json({
-            message: error.message
-        });
-    }
+    const query = `SELECT * FROM ${table}`;
+    connection.query(query, (err, result) => {
+        if (!err) {
+            return res.status(200).json({
+                rows: result
+            });
+        }else{
+            console.log("Error:", err);
+            return res.status(400).json({
+                message: err
+            });
+        }
+    });
 });
 
 // GET: Row by id
 router.get('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const query = `SELECT * FROM ${table} WHERE id = ${id}`;
-        const { rows } = await pgClient.query(query);
-        if (rows.length > 0) {
+    const { id } = req.params;
+    const query = `SELECT * FROM ${table} WHERE id = ${id}`;
+    connection.query(query, (err, result) => {
+        if (!err) {
             return res.status(200).json({
-                rows: rows[0]
+                rows: result
             });
         }else{
+            console.log("Error:", err);
             return res.status(400).json({
-                message: 'Row not found!'
+                message: err
             });
         }
-    } catch (error) {
-        console.log("Error: ", error);
-        return res.status(400).json({
-            message: error.message
-        });
-    }
+    });
 });
 
 // POST: Create row
 router.post('/', async (req, res) => {
-    try {
-        const query = `INSERT INTO ${table} (title, content) VALUES($1, $2) RETURNING *`;
-        const values = [req.body.title, req.body.content];
-        const { rows } = await pgClient.query(query, values);
-        return res.status(201).json({
-            rows: rows[0]
-        });
-    } catch (error) {
-        console.log("Error: ", error);
-        return res.status(400).json({
-            message: error.message
-        });
-    }
+    const query = `INSERT INTO ${table} (title, content, statu) VALUES(?,?,?)`;
+    const values = [req.body.title, req.body.content, req.body.statu];
+    connection.query(query, values, (err, result) => {
+        if (!err) {
+            if (result.insertId > 0) {
+                return res.status(200).json({
+                    message: "Successfully inserted",
+                    insertId: result.insertId
+                });
+            }else{
+                return res.status(400).json({
+                    message: "İnsert failed"
+                });
+            }            
+        }else{
+            console.log("Error:", err);
+            return res.status(400).json({
+                message: err
+            });
+        }
+    });
 });
 
 // PUT: Row by id
 router.put('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const query = createUpdateQuery(id, req.body);
-        const values = Object.keys(req.body).map(function (key) {
-            return req.body[key];
-        });
-        const result = await pgClient.query(query, values);
-        if (!result.err) {
-            return res.status(200).json({
-                message: "Successfully updated!",
-                rows: result.rows[0]
-            });
+    const { id } = req.params;
+    const query = generateUpdateQuery(id, req.body);
+    connection.query(query, (err, result) => {
+        if (!err) {
+            if (result.affectedRows === 1) {
+                return res.status(200).json({
+                    message: "Successfully updated"
+                });
+            }else{
+                return res.status(400).json({
+                    message: "Update failed"
+                });
+            }
         }else{
-            console.log(`Error: ${result.err.stack}`);
+            console.log("Error:", err);
+            return res.status(400).json({
+                message: err
+            });
         }
-    } catch (error) {
-        console.log("Error: ", error);
-        return res.status(400).json({
-            message: error.message
-        });
-    }
+    });
 });
 
 // DELETE: Row by id
 router.delete('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
-        const query = `DELETE FROM ${table} WHERE id = ${id}`;
-        const result = await pgClient.query(query);
-        return res.status(200).json({
-            message: 'Row deleted!'
-        });
-    } catch (error) {
-        console.log("Error: ", error);
-        return res.status(400).json({
-            message: error.message
-        });
-    }
+    const { id } = req.params;
+    const query = "DELETE FROM `"+table+"` WHERE id = "+ id;
+    connection.query(query, (err, result) => {
+        if (!err) {
+            if (result.affectedRows === 1) {
+                return res.status(200).json({
+                    message: "Successfully deleted"
+                });
+            }else{
+                return res.status(400).json({
+                    message: "Delete failed"
+                });
+            }
+        }else{
+            console.log("Error:", err);
+            return res.status(400).json({
+                message: err
+            });
+        }
+    });
 });
 
-const createUpdateQuery = function (id, cols) {
-    var query = ['UPDATE ' + table];
-    query.push('SET');
-    var set = [];
-    Object.keys(cols).forEach(function (key, i) {
-        set.push(key + ' = ($' + (i + 1) + ')'); 
+// PUT: Change statu by id
+router.put('/changeStatu/:id', async (req, res) => {
+    const { id } = req.params;
+    const query = `SELECT * FROM ${table} WHERE id = ${id}`;
+    connection.query(query, (err, result) => {
+        if (!err) {
+            if (result.length > 0) {
+                let statu = result[0].statu;
+                statu = (statu === 1) ? 0 : 1;
+                let changeQuery = "UPDATE `"+table+"` SET `statu` = "+statu+" WHERE id = " + id;
+                connection.query(changeQuery, (err, result) => {
+                    if (!err) {
+                        if (result.affectedRows === 1) {
+                            return res.status(200).json({
+                                message: "Statu changed:" + (statu === 1 ? "[Active]" : "[Passive]")
+                            });
+                        }else{
+                            return res.status(400).json({
+                                message: "Changed failed"
+                            });
+                        }
+                    }else{
+                        console.log("Error:", err);
+                        return res.status(400).json({
+                            message: err
+                        });
+                    }
+                });
+            }else{
+                return res.status(400).json({
+                    message: "Bu id'ye ait kayıt bulunamadı"
+                });
+            }
+        }else{
+            return res.status(400).json({
+                message: "Bu id'ye ait kayıt bulunamadı"
+            });
+        }
     });
-    query.push(set.join(', '));
-    query.push('WHERE id = ' + id );
-    query = query.join(' ');
-    query += ' RETURNING *';
+});
+
+const generateUpdateQuery = function (id, cols) {
+    let query = "UPDATE `"+table+"` SET ";
+    Object.keys(cols).forEach(function (key, i) {
+        if (i > 0) {
+            query += ",";
+        }
+        query += "`"+key+"`='"+cols[key]+"'";
+    });
+    query += " WHERE id = " + id;
     return query;
 }
 
