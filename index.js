@@ -10,9 +10,6 @@ const swaggerJson = require("./swagger.json");
 /** ROUTES */
 import events from './routers/events.js';
 
-/** ENV */
-const port = process.env.PORT;
-
 /** APP */
 const app = express();
 
@@ -26,13 +23,13 @@ app.get('/', (req, res) => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJson));
 
-app.listen(port, () => {
+app.listen(process.env.PORT, () => {
     connection.connect(err => {
         if (err) {
             console.log("Database Error:", err);
         }else{
-            console.log(`Listening: http://${process.env.HOSTNAME}:${port}`);
-            console.log(`Swagger UI: http://${process.env.HOSTNAME}:${port}/api-docs`);
+            console.log(`Listening: http://${process.env.HOSTNAME}:${process.env.PORT}`);
+            console.log(`Swagger UI: http://${process.env.HOSTNAME}:${process.env.PORT}/api-docs`);
         }
     });
 });

@@ -1,13 +1,12 @@
 import express from "express";
-import connection from '../config/db.js';
+import qp from '../config/queryProviders.js';
 
 const router = express.Router();
 const table = "events";
 
 // GET: List all rows
 router.get('/', (req, res) => {
-    const query = `SELECT * FROM ${table}`;
-    connection.query(query, (err, result) => {
+    qp.getDataTable(table, (err, result) => {
         if (!err) {
             return res.status(200).json({
                 statusCode: 200,
@@ -32,15 +31,14 @@ router.get('/', (req, res) => {
 // GET: Row by id
 router.get('/:id', (req, res) => {
     const { id } = req.params;
-    const query = `SELECT * FROM ${table} WHERE id = ${id}`;
-    connection.query(query, (err, result) => {
+    qp.getDataRow(table, id, (err, result) => {
         if (!err) {
-            if (result.length > 0) {
+            if (typeof result === 'object') {
                 return res.status(200).json({
                     statusCode: 200,
                     message: null,
                     rows: null,
-                    row: result[0],
+                    row: result,
                     insertId: null
                 });
             } else {
@@ -67,17 +65,15 @@ router.get('/:id', (req, res) => {
 
 // POST: Create row
 router.post('/', (req, res) => {
-    const query = `INSERT INTO ${table} (title, content, statu) VALUES(?,?,?)`;
-    const values = [req.body.title, req.body.content, req.body.statu];
-    connection.query(query, values, (err, result) => {
+    qp.insertRow(table, req.body, (err, result) => {
         if (!err) {
-            if (result.insertId > 0) {
+            if (typeof result === 'number') {
                 return res.status(200).json({
                     statusCode: 200,
                     message: "Successfully inserted",
                     rows: null,
                     row: null,
-                    insertId: result.insertId
+                    insertId: result
                 });
             } else {
                 return res.status(400).json({
@@ -104,8 +100,7 @@ router.post('/', (req, res) => {
 // PUT: Row by id
 router.put('/:id', (req, res) => {
     const { id } = req.params;
-    const query = generateUpdateQuery(id, req.body);
-    connection.query(query, (err, result) => {
+    qp.updateRow(table, id, req.body, (err, result) => {
         if (!err) {
             if (result.affectedRows === 1) {
                 return res.status(200).json({
@@ -140,8 +135,7 @@ router.put('/:id', (req, res) => {
 // DELETE: Row by id
 router.delete('/:id', (req, res) => {
     const { id } = req.params;
-    const query = "DELETE FROM `"+table+"` WHERE id = "+ id;
-    connection.query(query, (err, result) => {
+    qp.deleteRow(table, id, (err, result) => {
         if (!err) {
             if (result.affectedRows === 1) {
                 return res.status(200).json({
@@ -174,56 +168,43 @@ router.delete('/:id', (req, res) => {
 });
 
 // PUT: Change statu by id
-router.put('/changeStatu/:id', (req, res) => {
-    const { id } = req.params;
-    const query = `SELECT * FROM ${table} WHERE id = ${id}`;
-    connection.query(query, (err, result) => {
-        if (!err) {
-            if (result.length > 0) {
-                let statu = result[0].statu;
-                statu = (statu === 1) ? 0 : 1;
-                let changeQuery = "UPDATE `"+table+"` SET `statu` = "+statu+" WHERE id = " + id;
-                connection.query(changeQuery, (err, result) => {
-                    if (!err) {
-                        if (result.affectedRows === 1) {
-                            return res.status(200).json({
-                                statusCode: 200,
-                                message: "Statu changed:" + (statu === 1 ? "[Active]" : "[Passive]"),
-                                rows: null,
-                                row: null,
-                                insertId: null
-                            });
-                        } else {
-                            return res.status(400).json({
-                                statusCode: 400,
-                                message: "Changed failed",
-                                rows: null,
-                                row: null,
-                                insertId: null
-                            });
-                        }
+router.put('/changeStatu/:id', (request, response) => {
+    const { id } = request.params;
+    qp.getDataCell(table, 'statu', id, (error, result) => {
+        if (!error) {
+            let statu = result;
+            statu = (statu === 1) ? 0 : 1;
+            qp.updateRow(table, id, {statu: statu}, (err, res) => {
+                if (!err) {
+                    if (res.affectedRows === 1) {
+                        return response.status(200).json({
+                            statusCode: 200,
+                            message: "Successfully changed",
+                            rows: null,
+                            row: null,
+                            insertId: null
+                        });
                     } else {
-                        console.log("Error:", err);
-                        return res.status(400).json({
+                        return response.status(400).json({
                             statusCode: 400,
-                            message: err,
+                            message: "Change failed",
                             rows: null,
                             row: null,
                             insertId: null
                         });
                     }
-                });
-            } else {
-                return res.status(400).json({
-                    statusCode: 400,
-                    message: "Row not found!",
-                    rows: null,
-                    row: null,
-                    insertId: null
-                });
-            }
-        } else {
-            return res.status(400).json({
+                }else{
+                    return response.status(400).json({
+                        statusCode: 400,
+                        message: "Change failed",
+                        rows: null,
+                        row: null,
+                        insertId: null
+                    });
+                }
+            });
+        }else{
+            return response.status(400).json({
                 statusCode: 400,
                 message: "Row not found!",
                 rows: null,
@@ -233,17 +214,5 @@ router.put('/changeStatu/:id', (req, res) => {
         }
     });
 });
-
-const generateUpdateQuery = function (id, cols) {
-    let query = "UPDATE `"+table+"` SET ";
-    Object.keys(cols).forEach(function (key, i) {
-        if (i > 0) {
-            query += ",";
-        }
-        query += "`"+key+"`='"+cols[key]+"'";
-    });
-    query += " WHERE id = " + id;
-    return query;
-}
 
 export default router;
