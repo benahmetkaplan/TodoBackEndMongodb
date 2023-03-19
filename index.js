@@ -1,7 +1,15 @@
 import express from "express";
-import connection from './config/db.js';
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
+
+/** MONGOOSE */
+import mongoose from 'mongoose';
+
+/** ENV */
+import dotenv from "dotenv";
+import dotenvExpand from "dotenv-expand";
+const appEnv = dotenv.config();
+dotenvExpand.expand(appEnv);
 
 /** SWAGGER */
 import swaggerUi from "swagger-ui-express";
@@ -23,13 +31,12 @@ app.get('/', (req, res) => {
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerJson));
 
-app.listen(process.env.PORT, () => {
-    connection.connect(err => {
-        if (err) {
-            console.log("Database Error:", err);
-        }else{
-            console.log(`Listening: http://${process.env.HOSTNAME}:${process.env.PORT}`);
-            console.log(`Swagger UI: http://${process.env.HOSTNAME}:${process.env.PORT}/api-docs`);
-        }
-    });
+mongoose.connect(process.env.CONN_STR)
+.then(res => {
+    app.listen(process.env.PORT);
+    console.log(`Listening: http://${process.env.HOSTNAME}:${process.env.PORT}`);
+    console.log(`Swagger UI: http://${process.env.HOSTNAME}:${process.env.PORT}/api-docs`);
+})
+.catch(err => {
+    console.log("Database Error:", err);
 });
